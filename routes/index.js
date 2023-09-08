@@ -6,13 +6,15 @@ const reviewRouter = require("./reviewRouter.js");
 const tagRouter = require("./tagRouter.js");
 const commentRouter = require("./commentRouter.js");
 const likeRouter = require("./likeRouter.js");
+const ratingRouter = require("./ratingRouter.js");
 
 router.use("/user", userRouter);
 router.use("/artWork", artWorkRouter);
-router.use("/rewiew", reviewRouter);
+router.use("/review", reviewRouter);
 router.use("/tag", tagRouter);
 router.use("/comment", commentRouter);
 router.use("/like", likeRouter);
+router.use("/rating", ratingRouter);
 
 
 module.exports = router;

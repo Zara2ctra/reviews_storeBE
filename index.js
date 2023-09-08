@@ -3,14 +3,20 @@ const express = require("express");
 const sequelize = require("./db.js");
 const models = require("./models/models.js");
 const cors = require("cors")
+const fileUpload = require("express-fileupload")
 const router = require("./routes/index.js")
 const errorHandler = require("./middleware/ErrorHandlerMiddleware.js")
+const {User, Review, ArtWork, Rating, Tag, Comment} = require("./models/models");
 
 const PORT = process.env.PORT || 5000;
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(fileUpload({
+    useTempFiles : true,
+    tempFileDir : '/tmp/'
+}))
 app.use("/api", router);
 app.use(errorHandler);
 
@@ -26,6 +32,25 @@ const start = async () => {
     }
 }
 
-start().then(r => r);
+start();
+
+// async function deleteDataFromTable() {
+//     try {
+//         await User.drop({ cascade: true })
+//         await Review.drop({ cascade: true })
+//         await Rating.drop({ cascade: true })
+//         await Tag.drop({ cascade: true })
+//         await ArtWork.drop({ cascade: true })
+//         await Comment.drop({ cascade: true })
+//         console.log('All data deleted from the table');
+//     } catch (error) {
+//         console.error('Error deleting data:', error);
+//     }
+// }
+//
+// await deleteDataFromTable()
+
+
+
 
 
