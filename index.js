@@ -1,11 +1,12 @@
 require("dotenv").config()
 const express = require("express");
 const sequelize = require("./db.js");
-const models = require("./models/models.js");
-const cors = require("cors")
+const http = require("node:http");
+const cors = require("cors");
 const fileUpload = require("express-fileupload")
 const router = require("./routes/index.js")
 const errorHandler = require("./middleware/ErrorHandlerMiddleware.js")
+const registerCommentHandlers = require('./handlers/commentHandlers')
 const {User, Review, ArtWork, Rating, Tag, Comment} = require("./models/models");
 
 const PORT = process.env.PORT || 5000;
@@ -20,20 +21,37 @@ app.use(fileUpload({
 app.use("/api", router);
 app.use(errorHandler);
 
+const server = http.createServer(app);
+const socketIO = require('socket.io')(server, {
+    cors: {
+        origin: '*'
+    }
+});
 
+const onConnection = (socket) => {
+    const {reviewId} = socket.handshake.query;
+    socket.reviewId = reviewId;
+    socket.join(reviewId)
+
+    registerCommentHandlers(socketIO, socket)
+
+    socket.on('disconnect', () => {
+        socket.leave(reviewId)
+    })
+}
 
 const start = async () => {
     try {
         await sequelize.authenticate();
-        await sequelize.sync()
-        app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+        await sequelize.sync();
+        socketIO.on('connection', onConnection);
+        server.listen(PORT, () => console.log(`Server ready. Port: ${PORT}`));
     } catch (e) {
-        console.log(e)
+        console.log(e, "???")
     }
 }
 
 start();
-
 // async function deleteDataFromTable() {
 //     try {
 //         await User.drop({ cascade: true })

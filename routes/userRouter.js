@@ -8,8 +8,5 @@ router.post("/login", userController.login);
 router.get("/auth",authMiddleware, userController.check)
 router.get("/", userController.getAll);
 router.post("/id", userController.deleteUser);
-router.post("/id/all", userController.deleteAll);
-router.post("/block", userController.changeUserStatus);
-router.post("/block/all", userController.blockAll);
 
 module.exports = router;

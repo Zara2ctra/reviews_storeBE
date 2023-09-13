@@ -1,7 +1,7 @@
 const ApiError = require("../error/ApiError.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const User = require("../models/models.js");
+const {User} = require("../models/models.js");
 
 const generateJwt = (id, email, name) => {
     return jwt.sign(
@@ -22,7 +22,7 @@ class UserController {
             return next(ApiError.badRequest("A user with this email address already exists"));
         }
         const hashPassword = await bcrypt.hash(password, 5);
-        const user = await User.create({email, password: hashPassword, name});
+        const user = await User.create({name, email, password: hashPassword});
         const token = generateJwt(user.id, user.email, user.name);
         return res.json({token})
     }
