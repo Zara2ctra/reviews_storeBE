@@ -1,9 +1,12 @@
-const {Comment} = require("../models/models.js");
+const {Comment, User} = require("../models/models.js");
 
 module.exports = (io, socket) => {
 
     const getComments = async () => {
-        const comments = await Comment.findAll({where: {reviewId: socket.reviewId}});
+        const comments = await Comment.findAll({
+            where: {reviewId: socket.reviewId},
+            include: User,
+        });
         io.in(socket.reviewId).emit('comments', comments);
     }
 
@@ -12,6 +15,12 @@ module.exports = (io, socket) => {
         await getComments();
     }
 
+    const removeComment = async (commentId) => {
+        await Comment.destroy({where: {id: commentId}})
+        await getComments()
+    }
+
     socket.on('comment:get', getComments)
     socket.on('comment:add', addComment)
+    socket.on('comment:remove', removeComment)
 }

@@ -1,7 +1,5 @@
-const {Review, ArtWork} = require('../models/models')
+const {Review, ArtWork, User} = require('../models/models')
 const ApiError = require("../error/ApiError");
-const {where} = require("sequelize");
-const sequelize = require("sequelize");
 const cloudinary = require("cloudinary").v2;
 
 class ReviewController {
@@ -73,7 +71,14 @@ class ReviewController {
         const recentReviews = await Review.findAll({
             order: [['updatedAt', 'DESC']],
             limit: 6,
-            include: ArtWork,
+            include: [
+                {
+                    model: ArtWork
+                },
+                {
+                    model: User
+                }
+            ]
         });
         return res.json(recentReviews)
     }
@@ -82,21 +87,33 @@ class ReviewController {
         const recentReviews = await Review.findAll({
             order: [['rating', 'DESC']],
             limit: 6,
-            include: ArtWork,
+            include: [
+                {
+                    model: ArtWork
+                },
+                {
+                    model: User
+                }
+            ]
         });
         return res.json(recentReviews)
     }
 
     async getRecentType(req, res) {
         const {type} = req.params
-        console.log(type)
         const recentReviews = await Review.findAll({
             order: [['updatedAt', 'DESC']],
             limit: 6,
-            include: {
-                model: ArtWork,
-                where: {type},
-            }
+            include: [
+                {
+                    model: ArtWork,
+                    where: {type},
+                },
+                {
+                    model: User
+                }
+
+            ]
         });
         return res.json(recentReviews)
     }
@@ -106,10 +123,16 @@ class ReviewController {
         const recentReviews = await Review.findAll({
             order: [['rating', 'DESC']],
             limit: 6,
-            include: {
-                model: ArtWork,
-                where: {type},
-            }
+            include: [
+                {
+                    model: ArtWork,
+                    where: {type},
+                },
+                {
+                    model: User
+                }
+
+            ]
         });
         return res.json(recentReviews)
     }
@@ -121,7 +144,17 @@ class ReviewController {
 
     async getOne(req, res) {
         const {id} = req.params
-        const review = await Review.findOne({include: ArtWork,where: {id: id}})
+        const review = await Review.findOne({
+            include: [
+                {
+                    model: ArtWork
+                },
+                {
+                    model: User
+                }
+            ],
+            where: {id: id}
+        })
         return res.json(review)
     }
 
