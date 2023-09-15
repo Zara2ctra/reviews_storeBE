@@ -7,7 +7,9 @@ const fileUpload = require("express-fileupload")
 const router = require("./routes/index.js")
 const errorHandler = require("./middleware/ErrorHandlerMiddleware.js")
 const registerCommentHandlers = require('./handlers/commentHandlers')
-const {User, Review, ArtWork, Rating, Tag, Comment} = require("./models/models");
+const {User, Review, ArtWork, Rating, Tag, Comment, Like} = require("./models/models");
+const queryInterface = require("./models");
+const {Sequelize} = require("sequelize");
 
 const PORT = process.env.PORT || 5000;
 
@@ -15,8 +17,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(fileUpload({
-    useTempFiles : true,
-    tempFileDir : '/tmp/'
+    useTempFiles: true,
+    tempFileDir: '/tmp/'
 }))
 app.use("/api", router);
 app.use(errorHandler);
@@ -43,7 +45,7 @@ const onConnection = (socket) => {
 const start = async () => {
     try {
         await sequelize.authenticate();
-        await sequelize.sync();
+        await sequelize.sync()
         socketIO.on('connection', onConnection);
         server.listen(PORT, () => console.log(`Server ready. Port: ${PORT}`));
     } catch (e) {

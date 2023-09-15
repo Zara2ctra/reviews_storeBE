@@ -1,5 +1,6 @@
-const {Review, ArtWork, User} = require('../models/models')
+const {Review, ArtWork, User, Like} = require('../models/models')
 const ApiError = require("../error/ApiError");
+const {Op} = require("sequelize");
 const cloudinary = require("cloudinary").v2;
 
 class ReviewController {
@@ -69,14 +70,14 @@ class ReviewController {
 
     async getRecent(req, res) {
         const recentReviews = await Review.findAll({
-            order: [['updatedAt', 'DESC']],
+            order: [['createdAt', 'DESC']],
             limit: 6,
             include: [
                 {
                     model: ArtWork
                 },
                 {
-                    model: User
+                    model: User,
                 }
             ]
         });
@@ -102,7 +103,7 @@ class ReviewController {
     async getRecentType(req, res) {
         const {type} = req.params
         const recentReviews = await Review.findAll({
-            order: [['updatedAt', 'DESC']],
+            order: [['createdAt', 'DESC']],
             limit: 6,
             include: [
                 {
@@ -120,6 +121,7 @@ class ReviewController {
 
     async getPopularType(req, res) {
         const {type} = req.params
+
         const recentReviews = await Review.findAll({
             order: [['rating', 'DESC']],
             limit: 6,

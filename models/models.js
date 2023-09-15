@@ -15,7 +15,7 @@ const Review = sequelize.define("review", {
     name: {type: DataTypes.STRING},
     content_text: {type: DataTypes.TEXT},
     score: {type: DataTypes.INTEGER},
-    rating: {type: DataTypes.INTEGER, defaultValue: 0},
+    rating: {type: DataTypes.FLOAT, defaultValue: 0},
     imageUrl: {type: DataTypes.STRING}
 });
 
