@@ -8,8 +8,6 @@ const router = require("./routes/index.js")
 const errorHandler = require("./middleware/ErrorHandlerMiddleware.js")
 const registerCommentHandlers = require('./handlers/commentHandlers')
 const {User, Review, ArtWork, Rating, Tag, Comment, Like} = require("./models/models");
-const queryInterface = require("./models");
-const {Sequelize} = require("sequelize");
 
 const PORT = process.env.PORT || 5000;
 
