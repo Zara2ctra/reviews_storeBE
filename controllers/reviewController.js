@@ -77,6 +77,7 @@ class ReviewController {
                     model: ArtWork
                 },
                 {
+                    attributes: ['id', 'name'],
                     model: User,
                 }
             ]
@@ -93,6 +94,7 @@ class ReviewController {
                     model: ArtWork
                 },
                 {
+                    attributes: ['id', 'name'],
                     model: User
                 }
             ]
@@ -111,6 +113,7 @@ class ReviewController {
                     where: {type},
                 },
                 {
+                    attributes: ['id', 'name'],
                     model: User
                 }
 
@@ -131,6 +134,7 @@ class ReviewController {
                     where: {type},
                 },
                 {
+                    attributes: ['id', 'name'],
                     model: User
                 }
 
@@ -152,6 +156,7 @@ class ReviewController {
                     model: ArtWork
                 },
                 {
+                    attributes: ['id', 'name'],
                     model: User
                 }
             ],
