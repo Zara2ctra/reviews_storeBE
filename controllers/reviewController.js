@@ -105,8 +105,6 @@ class ReviewController {
     async getRecentType(req, res) {
         const {type} = req.params
         const recentReviews = await Review.findAll({
-            order: [['createdAt', 'DESC']],
-            limit: 6,
             include: [
                 {
                     model: ArtWork,
@@ -115,9 +113,9 @@ class ReviewController {
                 {
                     attributes: ['id', 'name'],
                     model: User
-                }
-
-            ]
+                }],
+            order: [['createdAt', 'DESC']],
+            limit: 6,
         });
         return res.json(recentReviews)
     }
@@ -126,8 +124,6 @@ class ReviewController {
         const {type} = req.params
 
         const recentReviews = await Review.findAll({
-            order: [['rating', 'DESC']],
-            limit: 6,
             include: [
                 {
                     model: ArtWork,
@@ -136,9 +132,9 @@ class ReviewController {
                 {
                     attributes: ['id', 'name'],
                     model: User
-                }
-
-            ]
+                }],
+            order: [['rating', 'DESC']],
+            limit: 6,
         });
         return res.json(recentReviews)
     }
