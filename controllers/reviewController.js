@@ -144,8 +144,19 @@ class ReviewController {
     }
 
     async getAll(req, res) {
-        const review = await Review.findAll()
-        return res.json(review)
+        const reviews = await Review.findAll({
+            include: [
+                {
+                    attributes: ['name', 'type'],
+                    model: ArtWork
+                },
+                {
+                    attributes: ['id','name', 'email'],
+                    model: User
+                }],
+            attributes: ['id', 'name', 'score', 'createdAt']
+        })
+        return res.json(reviews)
     }
 
     async userPageReviews(req, res) {

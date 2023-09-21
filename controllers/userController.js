@@ -49,13 +49,21 @@ class UserController {
 
     async check(req, res) {
         const token = generateJwt(req.user.id, req.user.email, req.user.name);
-        const user = await User.findOne(({where: {id: req.user.id}}));
+        const user = await User.findOne({where: {id: req.user.id}});
         const role = user.role
         return res.json({token, role})
     }
 
+    async setAdmin(req, res) {
+        const {id} = req.params;
+        const user = await User.findByPk(id);
+        user.role = "ADMIN";
+        await user.save();
+        return res.json(user);
+    }
+
     async getAll(req, res) {
-        let users = await User.findAll();
+        let users = await User.findAll({attributes: ['id', 'name', 'email']});
         return res.json(users);
     }
 
