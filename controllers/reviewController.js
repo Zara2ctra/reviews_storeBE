@@ -1,4 +1,4 @@
-const {Review, ArtWork, User, Like} = require('../models/models')
+const {Review, ArtWork, User, Comment} = require('../models/models')
 const ApiError = require("../error/ApiError");
 const {Op} = require("sequelize");
 const cloudinary = require("cloudinary").v2;
@@ -41,31 +41,35 @@ class ReviewController {
 
     async edit(req, res) {
         const {id} = req.params;
-        const {name, content_text, score, artworkId} = req.body;
+        const {name, content_text, score, artWorkId} = req.body;
 
         const existingReview = await Review.findByPk(id);
         existingReview.name = name || existingReview.name;
         existingReview.content_text = content_text || existingReview.content_text;
         existingReview.score = score || existingReview.score;
-        existingReview.artworkId = artworkId || existingReview.artworkId
+        existingReview.artWorkId = artWorkId || existingReview.artWorkId
 
         if (req.files) {
-            const {img} = req.files;
+            const {tempFilePath} = req.files.file;
             cloudinary.config({
                 cloud_name: process.env.CLOUD_NAME,
                 api_key: process.env.CLOUD_KEY,
                 api_secret: process.env.CLOUD_SECRET
             });
 
-            const result = await cloudinary.uploader.upload(img.tempFilePath, {
-                folder: "reviews",
-            });
+            try {
+                const result = await cloudinary.uploader.upload(tempFilePath, {
+                    folder: "reviews",
+                });
 
-            existingReview.imageUrl = result.secure_url;
+                existingReview.imageUrl = result.secure_url;
+            } catch (error) {
+                return next(ApiError.internal("File upload failed"));
+            }
         }
 
         await existingReview.save();
-        return res.json({message: 'Review updated successfully'});
+        return res.json(existingReview);
     }
 
     async getRecent(req, res) {
@@ -144,6 +148,21 @@ class ReviewController {
         return res.json(review)
     }
 
+    async userPageReviews(req, res) {
+        const {id} = req.params
+        const {count, rows} = await Review.findAndCountAll({
+            include: [
+                {
+                    attributes: ['name', 'type'],
+                    model: ArtWork
+                },
+            ],
+            where: {userId: id}
+        })
+
+        return res.json({count: count, reviews: rows})
+    }
+
     async getOne(req, res) {
         const {id} = req.params
         const review = await Review.findOne({
@@ -166,6 +185,66 @@ class ReviewController {
         const {id} = req.params;
         await Review.destroy({where: {id: id}});
         return res.json({message: "Deleted"})
+    }
+
+    async deleteMultiply(req, res) {
+        const {reviewsIds} = req.body;
+        await Review.destroy({
+            where: {
+                id: {
+                    [Op.in]: reviewsIds
+                }
+            }
+        })
+        return res.json({message: "Deleted"})
+    }
+
+    async searchReview(req, res) {
+        const {query} = req.query;
+
+        const reviews = await Review.findAll({
+            attributes: ['id', 'name', 'content_text'],
+            where: {
+                [Op.or]: [
+                    {
+                        '$review.name$': {
+                            [Op.iLike]: `%${query}%`,
+                        },
+                    },
+                    {
+                        '$review.content_text$': {
+                            [Op.iLike]: `%${query}%`,
+                        },
+                    },
+                    {
+                        '$comments.comment_text$': {
+                            [Op.iLike]: `%${query}%`,
+                        },
+                    },
+                    {
+                        '$art_work.name$': {
+                            [Op.iLike]: `%${query}%`,
+                        },
+                    },
+                    {
+                        '$art_work.type$': {
+                            [Op.iLike]: `%${query}%`,
+                        },
+                    },
+                ],
+            },
+            include: [
+                {
+                    model: ArtWork,
+                    attributes: ['name', 'type'],
+                },
+                {
+                    model: Comment,
+                    attributes: ['comment_text'],
+                }
+            ],
+        });
+        res.json(reviews);
     }
 }
 

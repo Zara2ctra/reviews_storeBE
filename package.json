@@ -17,6 +17,7 @@
     "express": "^4.18.2",
     "express-fileupload": "^1.4.0",
     "jsonwebtoken": "^9.0.1",
+    "markdown-it": "^13.0.1",
     "pg": "^8.11.2",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.32.1",

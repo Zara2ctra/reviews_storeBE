@@ -24,7 +24,8 @@ class UserController {
         const hashPassword = await bcrypt.hash(password, 5);
         const user = await User.create({name, email, password: hashPassword});
         const token = generateJwt(user.id, user.email, user.name);
-        return res.json({token})
+        const role = user.role
+        return res.json({token, role})
     }
 
     async login(req, res, next) {
@@ -42,12 +43,15 @@ class UserController {
         }
 
         const token = generateJwt(user.id, user.email, user.name);
-        return res.json({token});
+        const role = user.role
+        return res.json({token, role});
     }
 
     async check(req, res) {
         const token = generateJwt(req.user.id, req.user.email, req.user.name);
-        return res.json({token})
+        const user = await User.findOne(({where: {id: req.user.id}}));
+        const role = user.role
+        return res.json({token, role})
     }
 
     async getAll(req, res) {
@@ -55,12 +59,19 @@ class UserController {
         return res.json(users);
     }
 
+    async getOne(req, res) {
+        const {id} = req.params
+        const user = await User.findOne({
+            attributes: ['name', 'id', 'email', 'role'],
+            where: {id: id}
+        })
+        return res.json(user)
+    }
+
     async deleteUser(req, res) {
-        let id = req.body.id;
+        const {id} = req.params
         await User.destroy({
-            where: {
-                id: id
-            }
+            where: {id: id}
         });
         return res.json({message: "Deleted"})
     }
