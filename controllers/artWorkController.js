@@ -1,5 +1,4 @@
-const {ArtWork, Review} = require('../models/models')
-const ApiError = require("../error/ApiError");
+const {ArtWork} = require('../models/models')
 
 class ArtWorkController {
     async create(req, res) {
