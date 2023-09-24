@@ -1,6 +1,15 @@
-const axios =  require('axios');
+const axios = require('axios');
 const {User} = require("../models/models");
-const {DataTypes} = require("sequelize");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
+const generateJwt = (id, email, name) => {
+    return jwt.sign(
+        {id, email, name},
+        process.env.SECRET_KEY,
+        {expiresIn: "24h"}
+    )
+}
 
 
 class GithubController {
@@ -30,9 +39,25 @@ class GithubController {
                     Authorization: `Bearer ${accessToken}`,
                 },
             });
-            return data;
+
+            let user = await User.findOne({where: {name: data.login}});
+            let token, role
+            if (user) {
+                role = user.role
+                token = generateJwt(user.id, user.email, user.name);
+            } else {
+                const hashPassword = await bcrypt.hash(`${data.id}`, 5);
+                user = await User.create({
+                    name: data?.login,
+                    email: `githubemail${data.id}@gmail.com`,
+                    password: hashPassword
+                });
+                role = user.role
+                token = generateJwt(data.user.id, data.user.email, data.user.name);
+            }
+            return {token, role};
         } catch (error) {
-            return null;
+            console.log(error)
         }
     };
 }

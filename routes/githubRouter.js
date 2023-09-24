@@ -7,6 +7,7 @@ router.get('/accessToken', (req, res) => {
     githubController.getAccessToken(code).then((resp) => res.json(resp));
 });
 router.get('/userData', (req, res) => {
+    console.log("token")
     const accessToken = req.query.accessToken;
     githubController.getUserData(accessToken).then((resp) => res.json(resp));
 });

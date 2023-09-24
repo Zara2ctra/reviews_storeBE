@@ -33,13 +33,13 @@ class UserController {
         const user = await User.findOne(({where: {email}}));
 
         if (!user) {
-            return next(ApiError.internal("There is no user with this email address"));
+            return next(ApiError.unauthorized("Incorrect mail"));
         }
 
         let comparePassword = bcrypt.compareSync(password, user.password);
 
         if (!comparePassword) {
-            return next(ApiError.internal("Incorrect password"));
+            return next(ApiError.unauthorized("Incorrect password"));
         }
 
         const token = generateJwt(user.id, user.email, user.name);
@@ -48,8 +48,8 @@ class UserController {
     }
 
     async check(req, res) {
-        const token = generateJwt(req.user.id, req.user.email, req.user.name);
         const user = await User.findOne({where: {id: req.user.id}});
+        const token = generateJwt(user.id, user.email, user.name);
         const role = user.role
         return res.json({token, role})
     }
