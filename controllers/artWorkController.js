@@ -1,40 +1,49 @@
-const {ArtWork} = require('../models/models')
+const ArtWorkService = require('../services/artworkService')
 
 class ArtWorkController {
     async create(req, res) {
-        const {artworkName, artworkType} = req.body;
-        const existingArtWork = await ArtWork.findOne({
-            where: {
-                name: artworkName,
-                type: artworkType
-            }
-        });
-
-        if (!existingArtWork) {
-            const artwork = await ArtWork.create({name: artworkName, type: artworkType})
+        if (req.body.artworkName && req.body.artworkType) {
+            let artwork = await ArtWorkService.create(req.body);
             return res.json(artwork)
+        } else {
+            return res
+                .status(400)
+                .send({ message: 'Bad request.' });
         }
-
-        return res.json(existingArtWork)
     }
 
     async getAllById(req, res) {
-        const {artworksId} = req.body;
-        const artWork = await ArtWork.findAll({where: {id: artworksId}});
-        return res.json(artWork)
+        if (req.body.artworksId) {
+            let artworks = await ArtWorkService.getAllById(req.body);
+            return res.json(artworks)
+        } else {
+            return res
+                .status(400)
+                .send({ message: 'Bad request.' });
+        }
     }
 
 
     async getAllByType(req, res) {
-        const {type} = req.body;
-        const artWork = await ArtWork.findAll({where: {type: type}});
-        return res.json(artWork)
+        if (req.body.type) {
+            let artworks = await ArtWorkService.getAllByType(req.body);
+            return res.json(artworks)
+        } else {
+            return res
+                .status(400)
+                .send({ message: 'Bad request.' });
+        }
     }
 
     async getOne(req, res) {
-        const {id} = req.params
-        const artWork = await ArtWork.findOne({where: {id: id}});
-        return res.json(artWork)
+        if (req.params) {
+            let artwork = await ArtWorkService.getOne(req);
+            return res.json(artwork)
+        } else {
+            return res
+                .status(400)
+                .send({ message: 'Bad request.' });
+        }
     }
 }
 

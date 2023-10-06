@@ -1,6 +1,6 @@
-const TagService = require('../services/tagService')
+const {Tag} = require('../models/models')
 
-class TagController {
+class TagService {
     async create(req, res) {
 
     }
@@ -14,4 +14,4 @@ class TagController {
     }
 }
 
-module.exports = new TagController();
+module.exports = new TagService();

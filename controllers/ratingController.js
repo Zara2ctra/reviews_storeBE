@@ -1,44 +1,27 @@
-const {Rating, Review} = require('../models/models')
+const RatingService = require('../services/ratingService')
 
 class RatingController {
-    async changeRating(req, res) {
-        const {rate, userId, reviewId} = req.body;
-        const existingRate = await Rating.findOne({
-            where: {
-                userId: userId,
-                reviewId: reviewId
-            }
-        });
 
-        if (existingRate) {
-            existingRate.rate = rate;
-            await existingRate.save();
-            return res.json(rate);
+    async changeRating(req, res) {
+        if (req.body.userId && req.body.reviewId && req.body.rate) {
+            const rate = await RatingService.changeRating(req.body);
+            return res.json(rate)
         } else {
-            await Rating.create({rate, userId, reviewId});
-            return res.json(rate);
+            return res
+                .status(400)
+                .send({ message: 'Bad request.' });
         }
     }
 
     async getReviewRating(req, res) {
-        const {id} = req.params;
-        const {rows, count} = await Rating.findAndCountAll({
-            where: {reviewId: id}
-        });
-
-        const ratingSum = rows.reduce((sum, rating) => {
-            return sum + rating.rate
-        }, 0)
-        let calculatedRate = (ratingSum / count).toFixed(1);
-        if (isNaN(calculatedRate)) {
-            calculatedRate = 0
+        if (req.params.id) {
+            const rate = await RatingService.getReviewRating(req.params);
+            return res.json(rate)
+        } else {
+            return res
+                .status(400)
+                .send({ message: 'Bad request.' });
         }
-
-        const reviewData = await Review.findByPk(id);
-        reviewData.rating = calculatedRate || reviewData.rating;
-        await reviewData.save()
-
-        return res.json({calculatedRate, count})
     }
 }
 
